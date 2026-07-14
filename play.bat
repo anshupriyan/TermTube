@@ -3,72 +3,34 @@ setlocal enabledelayedexpansion
 
 set "SCRIPT_DIR=%~dp0"
 
-:: 1. If local virtual env exists, use it directly
-if exist "%SCRIPT_DIR%.venv\Scripts\python.exe" (
-    set "PYTHON_RUN=%SCRIPT_DIR%.venv\Scripts\python.exe"
-    goto run_player
-)
-
-:: 2. Find a working Python interpreter to create the virtual environment
-set "PYTHON_EXE=python"
-!PYTHON_EXE! -c "import sys" >nul 2>nul
-if %errorlevel% neq 0 (
-    set "PYTHON_EXE=py"
-    !PYTHON_EXE! -c "import sys" >nul 2>nul
-    if %errorlevel% neq 0 (
-        set "PYTHON_EXE="
-        
-        :: Check user's pythoncore paths (common on Windows)
-        for /d %%d in ("%USERPROFILE%\AppData\Local\Python\pythoncore-*") do (
-            if exist "%%d\python.exe" (
-                set "PYTHON_EXE=%%d\python.exe"
-            )
-        )
-        
-        :: Check user's local Programs\Python paths
-        if not defined PYTHON_EXE (
-            for /d %%d in ("%USERPROFILE%\AppData\Local\Programs\Python\Python*") do (
-                if exist "%%d\python.exe" (
-                    set "PYTHON_EXE=%%d\python.exe"
-                )
-            )
-        )
-        
-        :: Check system-wide Python paths
-        if not defined PYTHON_EXE (
-            for /d %%d in ("%SystemDrive%\Python*") do (
-                if exist "%%d\python.exe" (
-                    set "PYTHON_EXE=%%d\python.exe"
-                )
-            )
-        )
-        
-        if not defined PYTHON_EXE (
-            echo Python was not found or is not working properly on your system.
-            echo Installing Python 3 automatically using winget...
-            winget install Python.Python.3
-            echo.
-            echo Python has been installed. Please restart your terminal window and run play.bat again to start playback!
-            exit /b 0
-        )
+:: 1. Setup local Python interpreter if it doesn't exist
+if not exist "%SCRIPT_DIR%python_local\python.exe" (
+    echo Python not found in the project directory.
+    echo Downloading and installing a local Python interpreter...
+    
+    :: Download Python Installer
+    powershell -Command "Write-Host 'Downloading Python 3.11 installer...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' -OutFile 'python_installer.exe'"
+    
+    if not exist "%SCRIPT_DIR%python_installer.exe" (
+        echo Failed to download Python installer. Please check your internet connection.
+        exit /b 1
     )
+    
+    :: Run the installer silently, targeting a local folder in the project directory
+    echo Installing Python locally to %SCRIPT_DIR%python_local...
+    powershell -Command "Start-Process -FilePath 'python_installer.exe' -ArgumentList '/quiet InstallAllUsers=0 TargetDir=\'%SCRIPT_DIR%python_local\' PrependPath=0 AssociateFiles=0 ShortCuts=0 Include_doc=0' -Wait; Remove-Item -Path 'python_installer.exe' -Force"
+    
+    if not exist "%SCRIPT_DIR%python_local\python.exe" (
+        echo Failed to install Python locally. Please install it manually.
+        exit /b 1
+    )
+    
+    echo Installing Python dependencies locally...
+    "%SCRIPT_DIR%python_local\python.exe" -m pip install --upgrade pip
+    "%SCRIPT_DIR%python_local\python.exe" -m pip install yt-dlp numpy
 )
 
-:: 3. Setup local virtual environment (.venv) using the found python interpreter
-echo Creating local Python virtual environment venv...
-"!PYTHON_EXE!" -m venv "%SCRIPT_DIR%.venv"
-if %errorlevel% neq 0 (
-    echo Failed to create virtual environment.
-    exit /b 1
-)
-echo Installing Python dependencies locally...
-"%SCRIPT_DIR%.venv\Scripts\python.exe" -m pip install --upgrade pip
-"%SCRIPT_DIR%.venv\Scripts\python.exe" -m pip install yt-dlp numpy
-
-set "PYTHON_RUN=%SCRIPT_DIR%.venv\Scripts\python.exe"
-
-:run_player
-:: 4. Setup local FFmpeg binaries
+:: 2. Setup local FFmpeg binaries if they don't exist
 set "DOWNLOAD_FF="
 if not exist "%SCRIPT_DIR%ffmpeg.exe" (
     set "DOWNLOAD_FF=y"
@@ -88,11 +50,11 @@ if "!DOWNLOAD_FF!"=="y" (
     )
 )
 
-:: 5. Configure paths for local binaries
+:: 3. Configure paths for local binaries
 set "PATH=%SCRIPT_DIR%;%PATH%"
 set "PYTHONPATH=%SCRIPT_DIR%termtube;%PYTHONPATH%"
 
-:: 6. Validate arguments and run
+:: 4. Validate arguments and run
 if "%~1"=="" (
     echo Usage: play.bat [youtube_url] [additional_options]
     echo.
@@ -103,4 +65,4 @@ if "%~1"=="" (
     exit /b 1
 )
 
-"!PYTHON_RUN!" -m termtube.cli %*
+"%SCRIPT_DIR%python_local\python.exe" -m termtube.cli %*
