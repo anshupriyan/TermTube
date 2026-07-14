@@ -9,7 +9,7 @@ if not exist "%SCRIPT_DIR%python_local\python.exe" (
     echo Downloading and installing a local Python interpreter...
     
     :: Download Python Installer
-    powershell -Command "Write-Host 'Downloading Python 3.11 installer...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' -OutFile 'python_installer.exe'"
+    powershell -Command "Write-Host 'Downloading Python 3.11 installer...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' -OutFile '%SCRIPT_DIR%python_installer.exe'"
     
     if not exist "%SCRIPT_DIR%python_installer.exe" (
         echo Failed to download Python installer. Please check your internet connection.
@@ -18,7 +18,9 @@ if not exist "%SCRIPT_DIR%python_local\python.exe" (
     
     :: Run the installer silently, targeting a local folder in the project directory
     echo Installing Python locally to %SCRIPT_DIR%python_local...
-    powershell -Command "Start-Process -FilePath 'python_installer.exe' -ArgumentList '/quiet InstallAllUsers=0 TargetDir=\'%SCRIPT_DIR%python_local\' PrependPath=0 AssociateFiles=0 ShortCuts=0 Include_doc=0' -Wait; Remove-Item -Path 'python_installer.exe' -Force"
+    start /wait "" "%SCRIPT_DIR%python_installer.exe" /quiet InstallAllUsers=0 TargetDir="%SCRIPT_DIR%python_local" PrependPath=0 AssociateFiles=0 ShortCuts=0 Include_doc=0
+    
+    del "%SCRIPT_DIR%python_installer.exe"
     
     if not exist "%SCRIPT_DIR%python_local\python.exe" (
         echo Failed to install Python locally. Please install it manually.
