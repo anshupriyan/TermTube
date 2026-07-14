@@ -9,10 +9,11 @@ if not exist "%SCRIPT_DIR%python_local\python.exe" (
     echo Downloading and installing a local Python interpreter...
     
     :: Download Python Installer
-    powershell -Command "Write-Host 'Downloading Python 3.11 installer...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' -OutFile '%SCRIPT_DIR%python_installer.exe'"
+    powershell -Command "Write-Host 'Downloading Python 3.11 installer...'; $ProgressPreference = 'SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' -OutFile '%SCRIPT_DIR%python_installer.exe'"
     
     if not exist "%SCRIPT_DIR%python_installer.exe" (
         echo Failed to download Python installer. Please check your internet connection.
+        pause
         exit /b 1
     )
     
@@ -24,6 +25,7 @@ if not exist "%SCRIPT_DIR%python_local\python.exe" (
     
     if not exist "%SCRIPT_DIR%python_local\python.exe" (
         echo Failed to install Python locally. Please install it manually.
+        pause
         exit /b 1
     )
     
@@ -44,10 +46,11 @@ if not exist "%SCRIPT_DIR%ffplay.exe" (
 if "!DOWNLOAD_FF!"=="y" (
     echo ffmpeg.exe or ffplay.exe is missing from the project directory.
     echo Downloading FFmpeg binaries locally...
-    powershell -Command "Write-Host 'Downloading FFmpeg essentials build...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip' -OutFile '%SCRIPT_DIR%ffmpeg.zip'; Write-Host 'Extracting FFmpeg...'; Expand-Archive -Path '%SCRIPT_DIR%ffmpeg.zip' -DestinationPath '%SCRIPT_DIR%ffmpeg_temp'; Get-ChildItem -Path '%SCRIPT_DIR%ffmpeg_temp' -Filter 'ffmpeg.exe' -Recurse | Copy-Item -Destination '%SCRIPT_DIR%'; Get-ChildItem -Path '%SCRIPT_DIR%ffmpeg_temp' -Filter 'ffplay.exe' -Recurse | Copy-Item -Destination '%SCRIPT_DIR%'; Remove-Item -Path '%SCRIPT_DIR%ffmpeg.zip', '%SCRIPT_DIR%ffmpeg_temp' -Recurse -Force"
+    powershell -Command "Write-Host 'Downloading FFmpeg essentials build...'; $ProgressPreference = 'SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip' -OutFile '%SCRIPT_DIR%ffmpeg.zip'; Write-Host 'Extracting FFmpeg...'; Expand-Archive -Path '%SCRIPT_DIR%ffmpeg.zip' -DestinationPath '%SCRIPT_DIR%ffmpeg_temp'; Get-ChildItem -Path '%SCRIPT_DIR%ffmpeg_temp' -Filter 'ffmpeg.exe' -Recurse | Copy-Item -Destination '%SCRIPT_DIR%'; Get-ChildItem -Path '%SCRIPT_DIR%ffmpeg_temp' -Filter 'ffplay.exe' -Recurse | Copy-Item -Destination '%SCRIPT_DIR%'; Remove-Item -Path '%SCRIPT_DIR%ffmpeg.zip', '%SCRIPT_DIR%ffmpeg_temp' -Recurse -Force"
     
     if not exist "%SCRIPT_DIR%ffmpeg.exe" (
         echo Failed to download FFmpeg binaries. Please download them manually and place them in the project folder.
+        pause
         exit /b 1
     )
 )
