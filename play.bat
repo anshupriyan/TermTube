@@ -20,7 +20,7 @@ if not exist "%SCRIPT_DIR%python_local\python.exe" (
     echo Downloading and installing a local Python interpreter...
     
     :: Download Python Embeddable Package (much faster and requires no installer/admin UAC elevation)
-    "%POWERSHELL_BIN%" -Command "Write-Host 'Downloading Python 3.11 embeddable package...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip' -OutFile '%SCRIPT_DIR%python_embed.zip'"
+    "%POWERSHELL_BIN%" -Command "$ProgressPreference = 'SilentlyContinue'; Write-Host 'Downloading Python 3.11 embeddable package...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip' -OutFile '%SCRIPT_DIR%python_embed.zip'"
     
     if not exist "%SCRIPT_DIR%python_embed.zip" (
         echo Failed to download Python package. Please check your internet connection.
@@ -43,7 +43,7 @@ if not exist "%SCRIPT_DIR%python_local\python.exe" (
     
     :: Download get-pip.py to bootstrap pip
     echo Bootstrapping pip manager...
-    "%POWERSHELL_BIN%" -Command "Write-Host 'Downloading get-pip.py...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://bootstrap.pypa.io/get-pip.py' -OutFile '%SCRIPT_DIR%get-pip.py'"
+    "%POWERSHELL_BIN%" -Command "$ProgressPreference = 'SilentlyContinue'; Write-Host 'Downloading get-pip.py...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://bootstrap.pypa.io/get-pip.py' -OutFile '%SCRIPT_DIR%get-pip.py'"
     
     if exist "%SCRIPT_DIR%get-pip.py" (
         "%SCRIPT_DIR%python_local\python.exe" "%SCRIPT_DIR%get-pip.py" --no-warn-script-location
@@ -86,7 +86,7 @@ if not exist "%SCRIPT_DIR%ffplay.exe" (
 if "!DOWNLOAD_FF!"=="y" (
     echo ffmpeg.exe or ffplay.exe is missing from the project directory.
     echo Downloading FFmpeg binaries locally...
-    "%POWERSHELL_BIN%" -Command "Write-Host 'Downloading FFmpeg essentials build...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip' -OutFile '%SCRIPT_DIR%ffmpeg.zip'; Write-Host 'Extracting FFmpeg...'; Expand-Archive -Path '%SCRIPT_DIR%ffmpeg.zip' -DestinationPath '%SCRIPT_DIR%ffmpeg_temp'; Get-ChildItem -Path '%SCRIPT_DIR%ffmpeg_temp' -Filter 'ffmpeg.exe' -Recurse | Copy-Item -Destination '%SCRIPT_DIR%'; Get-ChildItem -Path '%SCRIPT_DIR%ffmpeg_temp' -Filter 'ffplay.exe' -Recurse | Copy-Item -Destination '%SCRIPT_DIR%'; Remove-Item -Path '%SCRIPT_DIR%ffmpeg.zip', '%SCRIPT_DIR%ffmpeg_temp' -Recurse -Force"
+    "%POWERSHELL_BIN%" -Command "$ProgressPreference = 'SilentlyContinue'; Write-Host 'Downloading FFmpeg essentials build...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip' -OutFile '%SCRIPT_DIR%ffmpeg.zip'; Write-Host 'Extracting FFmpeg...'; Expand-Archive -Path '%SCRIPT_DIR%ffmpeg.zip' -DestinationPath '%SCRIPT_DIR%ffmpeg_temp'; Get-ChildItem -Path '%SCRIPT_DIR%ffmpeg_temp' -Filter 'ffmpeg.exe' -Recurse | Copy-Item -Destination '%SCRIPT_DIR%'; Get-ChildItem -Path '%SCRIPT_DIR%ffmpeg_temp' -Filter 'ffplay.exe' -Recurse | Copy-Item -Destination '%SCRIPT_DIR%'; Remove-Item -Path '%SCRIPT_DIR%ffmpeg.zip', '%SCRIPT_DIR%ffmpeg_temp' -Recurse -Force"
     
     if not exist "%SCRIPT_DIR%ffmpeg.exe" (
         echo Failed to download FFmpeg binaries. Please download them manually and place them in the project folder.
