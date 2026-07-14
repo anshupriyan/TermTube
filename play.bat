@@ -1,29 +1,71 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: 1. Check for Python
-python -c "import sys" >nul 2>nul
+set "SCRIPT_DIR=%~dp0"
+
+:: 1. If local virtual env exists, use it directly
+if exist "%SCRIPT_DIR%.venv\Scripts\python.exe" (
+    set "PYTHON_RUN=%SCRIPT_DIR%.venv\Scripts\python.exe"
+    goto run_player
+)
+
+:: 2. Find a working Python interpreter to create the virtual environment
+set "PYTHON_EXE=python"
+!PYTHON_EXE! -c "import sys" >nul 2>nul
 if %errorlevel% neq 0 (
-    echo Python was not found or is not working properly on your system.
-    echo Please install Python 3 from https://www.python.org/downloads/ and add it to your PATH.
+    set "PYTHON_EXE=py"
+    !PYTHON_EXE! -c "import sys" >nul 2>nul
+    if %errorlevel% neq 0 (
+        set "PYTHON_EXE="
+        
+        :: Check user's pythoncore paths (common on Windows)
+        for /d %%d in ("%USERPROFILE%\AppData\Local\Python\pythoncore-*") do (
+            if exist "%%d\python.exe" (
+                set "PYTHON_EXE=%%d\python.exe"
+            )
+        )
+        
+        :: Check user's local Programs\Python paths
+        if not defined PYTHON_EXE (
+            for /d %%d in ("%USERPROFILE%\AppData\Local\Programs\Python\Python*") do (
+                if exist "%%d\python.exe" (
+                    set "PYTHON_EXE=%%d\python.exe"
+                )
+            )
+        )
+        
+        :: Check system-wide Python paths
+        if not defined PYTHON_EXE (
+            for /d %%d in ("%SystemDrive%\Python*") do (
+                if exist "%%d\python.exe" (
+                    set "PYTHON_EXE=%%d\python.exe"
+                )
+            )
+        )
+        
+        if not defined PYTHON_EXE (
+            echo Python was not found or is not working properly on your system.
+            echo Please install Python 3 from https://www.python.org/downloads/ and make sure to check 'Add Python to PATH'.
+            exit /b 1
+        )
+    )
+)
+
+:: 3. Setup local virtual environment (.venv) using the found python interpreter
+echo Creating local Python virtual environment venv...
+"!PYTHON_EXE!" -m venv "%SCRIPT_DIR%.venv"
+if %errorlevel% neq 0 (
+    echo Failed to create virtual environment.
     exit /b 1
 )
+echo Installing Python dependencies locally...
+"%SCRIPT_DIR%.venv\Scripts\python.exe" -m pip install --upgrade pip
+"%SCRIPT_DIR%.venv\Scripts\python.exe" -m pip install yt-dlp numpy
 
-:: 2. Setup local virtual environment (.venv)
-set "SCRIPT_DIR=%~dp0"
-if not exist "%SCRIPT_DIR%.venv" (
-    echo Creating local Python virtual environment venv...
-    python -m venv "%SCRIPT_DIR%.venv"
-    if %errorlevel% neq 0 (
-        echo Failed to create virtual environment.
-        exit /b 1
-    )
-    echo Installing Python dependencies locally...
-    "%SCRIPT_DIR%.venv\Scripts\python.exe" -m pip install --upgrade pip
-    "%SCRIPT_DIR%.venv\Scripts\python.exe" -m pip install yt-dlp numpy
-)
+set "PYTHON_RUN=%SCRIPT_DIR%.venv\Scripts\python.exe"
 
-:: 3. Setup local FFmpeg binaries
+:run_player
+:: 4. Setup local FFmpeg binaries
 set "DOWNLOAD_FF="
 if not exist "%SCRIPT_DIR%ffmpeg.exe" (
     set "DOWNLOAD_FF=y"
@@ -43,11 +85,11 @@ if "!DOWNLOAD_FF!"=="y" (
     )
 )
 
-:: 4. Configure paths for local binaries
+:: 5. Configure paths for local binaries
 set "PATH=%SCRIPT_DIR%;%PATH%"
 set "PYTHONPATH=%SCRIPT_DIR%termtube;%PYTHONPATH%"
 
-:: 5. Validate arguments and run
+:: 6. Validate arguments and run
 if "%~1"=="" (
     echo Usage: play.bat [youtube_url] [additional_options]
     echo.
@@ -58,4 +100,4 @@ if "%~1"=="" (
     exit /b 1
 )
 
-"%SCRIPT_DIR%.venv\Scripts\python.exe" -m termtube.cli %*
+"!PYTHON_RUN!" -m termtube.cli %*
