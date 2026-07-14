@@ -45,16 +45,11 @@ if %errorlevel% neq 0 (
         
         if not defined PYTHON_EXE (
             echo Python was not found or is not working properly on your system.
-            set /p INSTALL_PY="Would you like to install Python 3 automatically using winget? (y/n): "
-            if /i "!INSTALL_PY!"=="y" (
-                echo Installing Python...
-                winget install Python.Python.3
-                echo Please restart your terminal window and run play.bat again.
-                exit /b 0
-            ) else (
-                echo Please install Python manually from https://www.python.org/downloads/
-                exit /b 1
-            )
+            echo Installing Python 3 automatically using winget...
+            winget install Python.Python.3
+            echo.
+            echo Python has been installed. Please restart your terminal window and run play.bat again to start playback!
+            exit /b 0
         )
     )
 )
