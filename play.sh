@@ -41,14 +41,43 @@ if ! command -v ffmpeg &> /dev/null || ! command -v ffplay &> /dev/null; then
 fi
 
 # 5. Validate arguments and run
-if [ -z "$1" ]; then
-    echo "Usage: ./play.sh [youtube_url] [additional_options]"
+YT_URL="$1"
+PLAY_STYLE=""
+INTERACTIVE=""
+
+if [ -z "$YT_URL" ]; then
+    INTERACTIVE="y"
     echo ""
-    echo "Examples:"
-    echo "  ./play.sh \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\""
-    echo "  ./play.sh \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\" --style ascii"
-    echo "  ./play.sh \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\" --style halfblock --fps 15"
-    exit 1
+    echo "==================================================="
+    echo "            TermTube Terminal Player"
+    echo "==================================================="
+    echo ""
+    read -p "Enter YouTube Video Link: " YT_URL
+    if [ -z "$YT_URL" ]; then
+        echo "Error: YouTube Link cannot be empty."
+        read -n 1 -s -r -p "Press any key to continue..."
+        exit 1
+    fi
+    
+    echo ""
+    echo "Select rendering style:"
+    echo "  1. Block characters (hd color)"
+    echo "  2. ASCII density characters (text art)"
+    echo ""
+    read -p "Select Option (1 or 2) [Default: 1]: " STYLE_CHOICE
+    if [ "$STYLE_CHOICE" = "2" ]; then
+        PLAY_STYLE="--style ascii"
+    else
+        PLAY_STYLE="--style halfblock"
+    fi
+    echo ""
 fi
 
-"$SCRIPT_DIR/.venv/bin/python3" -m termtube.cli "$@"
+if [ -n "$INTERACTIVE" ]; then
+    "$SCRIPT_DIR/.venv/bin/python3" -m termtube.cli "$YT_URL" $PLAY_STYLE
+    echo ""
+    echo "Playback finished."
+    read -n 1 -s -r -p "Press any key to continue..."
+else
+    "$SCRIPT_DIR/.venv/bin/python3" -m termtube.cli "$@"
+fi

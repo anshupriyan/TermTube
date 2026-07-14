@@ -57,14 +57,43 @@ set "PATH=%SCRIPT_DIR%;%PATH%"
 set "PYTHONPATH=%SCRIPT_DIR%termtube;%PYTHONPATH%"
 
 :: 4. Validate arguments and run
-if "%~1"=="" (
-    echo Usage: play.bat [youtube_url] [additional_options]
+set "YT_URL=%~1"
+set "PLAY_STYLE="
+set "INTERACTIVE="
+
+if "!YT_URL!"=="" (
+    set "INTERACTIVE=y"
     echo.
-    echo Examples:
-    echo   play.bat "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-    echo   play.bat "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --style ascii
-    echo   play.bat "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --style halfblock --fps 15
-    exit /b 1
+    echo ===================================================
+    echo             TermTube Terminal Player
+    echo ===================================================
+    echo.
+    set /p "YT_URL=Enter YouTube Video Link: "
+    if "!YT_URL!"=="" (
+        echo Error: YouTube Link cannot be empty.
+        pause
+        exit /b 1
+    )
+    
+    echo.
+    echo Select rendering style:
+    echo   1. Block characters (hd color)
+    echo   2. ASCII density characters (text art)
+    echo.
+    set /p "STYLE_CHOICE=Select Option (1 or 2) [Default: 1]: "
+    if "!STYLE_CHOICE!"=="2" (
+        set "PLAY_STYLE=--style ascii"
+    ) else (
+        set "PLAY_STYLE=--style halfblock"
+    )
+    echo.
 )
 
-"%SCRIPT_DIR%python_local\python.exe" -m termtube.cli %*
+if defined INTERACTIVE (
+    "%SCRIPT_DIR%python_local\python.exe" -m termtube.cli "!YT_URL!" !PLAY_STYLE!
+    echo.
+    echo Playback finished.
+    pause
+) else (
+    "%SCRIPT_DIR%python_local\python.exe" -m termtube.cli %*
+)
