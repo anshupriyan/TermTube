@@ -18,20 +18,26 @@ Developed for modern terminal emulators with truecolor support.
 
 ## Quick Start (No Installation Needed)
 
-Just clone the repository, download/copy `ffmpeg` and `ffplay` executable binaries to the root folder, and run:
+1. **Extract the project files** (if you downloaded the ZIP archive from GitHub) or open the project folder.
+2. **Run the startup script** for your operating system:
 
-### Windows (cmd / PowerShell)
-```powershell
-.\play.bat "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-```
+   ### Windows
+   Double-click `play.bat` or run it from your terminal:
+   ```cmd
+   play.bat
+   ```
 
-### macOS & Linux
-```bash
-chmod +x play.sh
-./play.sh "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-```
+   ### macOS & Linux
+   Run the shell script from your terminal:
+   ```bash
+   chmod +x play.sh
+   ./play.sh
+   ```
 
-*Note: The script automatically checks for Python, installs required packages (`yt-dlp` and `numpy`), configures path variables, and bootstraps setup dependencies.*
+3. **Wait for Auto-Setup:** On the first run, the script will take a few minutes to automatically download and configure its own local Python interpreter, FFmpeg binaries, and dependencies.
+4. **Play your video:**
+   * Once the setup is complete, the script will prompt you to enter a YouTube video link.
+   * Next, choose your preferred rendering style (Block characters for high-density color, or ASCII density characters for text art) and press Enter.
 
 > [!NOTE]
 > **Windows Security Warning ("Unknown Publisher")**: 
