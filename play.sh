@@ -42,42 +42,39 @@ fi
 
 # 5. Validate arguments and run
 YT_URL="$1"
-PLAY_STYLE=""
-INTERACTIVE=""
 
 if [ -z "$YT_URL" ]; then
-    INTERACTIVE="y"
-    echo ""
-    echo "==================================================="
-    echo "            TermTube Terminal Player"
-    echo "==================================================="
-    echo ""
-    read -p "Enter YouTube Video Link: " YT_URL
-    if [ -z "$YT_URL" ]; then
-        echo "Error: YouTube Link cannot be empty."
-        read -n 1 -s -r -p "Press any key to continue..."
-        exit 1
-    fi
-    
-    echo ""
-    echo "Select rendering style:"
-    echo "  1. Block characters (hd color)"
-    echo "  2. ASCII density characters (text art)"
-    echo ""
-    read -p "Select Option (1 or 2) [Default: 1]: " STYLE_CHOICE
-    if [ "$STYLE_CHOICE" = "2" ]; then
-        PLAY_STYLE="--style ascii"
-    else
-        PLAY_STYLE="--style halfblock"
-    fi
-    echo ""
-fi
-
-if [ -n "$INTERACTIVE" ]; then
-    "$SCRIPT_DIR/.venv/bin/python3" -m termtube.cli "$YT_URL" $PLAY_STYLE
-    echo ""
-    echo "Playback finished."
-    read -n 1 -s -r -p "Press any key to continue..."
+    while true; do
+        echo ""
+        echo "==================================================="
+        echo "            TermTube Terminal Player"
+        echo "==================================================="
+        echo ""
+        read -p "Enter YouTube Video Link (or press Enter to exit): " YT_URL
+        if [ -z "$YT_URL" ]; then
+            echo "Goodbye!"
+            exit 0
+        fi
+        
+        echo ""
+        echo "Select rendering style:"
+        echo "  1. Block characters (hd color)"
+        echo "  2. ASCII density characters (text art)"
+        echo ""
+        read -p "Select Option (1 or 2) [Default: 1]: " STYLE_CHOICE
+        if [ "$STYLE_CHOICE" = "2" ]; then
+            PLAY_STYLE="--style ascii"
+        else
+            PLAY_STYLE="--style halfblock"
+        fi
+        echo ""
+        
+        "$SCRIPT_DIR/.venv/bin/python3" -m termtube.cli "$YT_URL" $PLAY_STYLE
+        
+        echo ""
+        echo "Playback finished."
+        YT_URL="" # Clear for the next iteration
+    done
 else
     "$SCRIPT_DIR/.venv/bin/python3" -m termtube.cli "$@"
 fi

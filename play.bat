@@ -58,42 +58,45 @@ set "PYTHONPATH=%SCRIPT_DIR%termtube;%PYTHONPATH%"
 
 :: 4. Validate arguments and run
 set "YT_URL=%~1"
-set "PLAY_STYLE="
-set "INTERACTIVE="
 
 if "!YT_URL!"=="" (
-    set "INTERACTIVE=y"
-    echo.
-    echo ===================================================
-    echo             TermTube Terminal Player
-    echo ===================================================
-    echo.
-    set /p "YT_URL=Enter YouTube Video Link: "
-    if "!YT_URL!"=="" (
-        echo Error: YouTube Link cannot be empty.
-        pause
-        exit /b 1
-    )
-    
-    echo.
-    echo Select rendering style:
-    echo   1. Block characters (hd color)
-    echo   2. ASCII density characters (text art)
-    echo.
-    set /p "STYLE_CHOICE=Select Option (1 or 2) [Default: 1]: "
-    if "!STYLE_CHOICE!"=="2" (
-        set "PLAY_STYLE=--style ascii"
-    ) else (
-        set "PLAY_STYLE=--style halfblock"
-    )
-    echo.
-)
-
-if defined INTERACTIVE (
-    "%SCRIPT_DIR%python_local\python.exe" -m termtube.cli "!YT_URL!" !PLAY_STYLE!
-    echo.
-    echo Playback finished.
-    pause
+    goto prompt_loop
 ) else (
     "%SCRIPT_DIR%python_local\python.exe" -m termtube.cli %*
+    exit /b 0
 )
+
+:prompt_loop
+set "YT_URL="
+set "PLAY_STYLE="
+set "STYLE_CHOICE="
+
+echo.
+echo ===================================================
+echo             TermTube Terminal Player
+echo ===================================================
+echo.
+set /p "YT_URL=Enter YouTube Video Link (or press Enter to exit): "
+if "!YT_URL!"=="" (
+    echo Goodbye!
+    exit /b 0
+)
+
+echo.
+echo Select rendering style:
+echo   1. Block characters (hd color)
+echo   2. ASCII density characters (text art)
+echo.
+set /p "STYLE_CHOICE=Select Option (1 or 2) [Default: 1]: "
+if "!STYLE_CHOICE!"=="2" (
+    set "PLAY_STYLE=--style ascii"
+) else (
+    set "PLAY_STYLE=--style halfblock"
+)
+echo.
+
+"%SCRIPT_DIR%python_local\python.exe" -m termtube.cli "!YT_URL!" !PLAY_STYLE!
+
+echo.
+echo Playback finished.
+goto prompt_loop
