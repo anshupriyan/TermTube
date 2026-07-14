@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "termtube"
+version = "0.1.0"
+description = "A terminal YouTube video player"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "yt-dlp",
+    "numpy",
+]
+
+[project.scripts]
+termtube = "termtube.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["termtube*"]

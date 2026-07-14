@@ -1,0 +1,22 @@
+# Exclude large executable binaries (prevents GitHub 100MB file size limit issues)
+ffmpeg.exe
+ffplay.exe
+ffmpeg
+ffplay
+
+# Exclude Python build/distribution/virtualenv artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# Exclude local OS metadata
+.DS_Store
+Thumbs.db
