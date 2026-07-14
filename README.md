@@ -33,6 +33,13 @@ chmod +x play.sh
 
 *Note: The script automatically checks for Python, installs required packages (`yt-dlp` and `numpy`), configures path variables, and bootstraps setup dependencies.*
 
+> [!NOTE]
+> **Windows Security Warning ("Unknown Publisher")**: 
+> Windows flags files downloaded directly from browsers (like GitHub ZIP releases) with a security warning. If you encounter this prompt:
+> 1. Click **Run** to execute the script.
+> 2. Alternatively, right-click `play.bat` -> select **Properties** -> check the **Unblock** box at the bottom -> click **OK** to permanently remove the warning.
+
+
 ---
 
 ## Native Installation (Global Command)
