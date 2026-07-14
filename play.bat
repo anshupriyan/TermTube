@@ -8,30 +8,45 @@ if not exist "%SCRIPT_DIR%python_local\python.exe" (
     echo Python not found in the project directory.
     echo Downloading and installing a local Python interpreter...
     
-    :: Download Python Installer
-    powershell -Command "Write-Host 'Downloading Python 3.11 installer...'; $ProgressPreference = 'SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe' -OutFile '%SCRIPT_DIR%python_installer.exe'"
+    :: Download Python Embeddable Package (much faster and requires no installer/admin UAC elevation)
+    powershell -Command "Write-Host 'Downloading Python 3.11 embeddable package...'; $ProgressPreference = 'SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip' -OutFile '%SCRIPT_DIR%python_embed.zip'"
     
-    if not exist "%SCRIPT_DIR%python_installer.exe" (
-        echo Failed to download Python installer. Please check your internet connection.
+    if not exist "%SCRIPT_DIR%python_embed.zip" (
+        echo Failed to download Python package. Please check your internet connection.
         pause
         exit /b 1
     )
     
-    :: Run the installer silently, targeting a local folder in the project directory
-    echo Installing Python locally to %SCRIPT_DIR%python_local...
-    start /wait "" "%SCRIPT_DIR%python_installer.exe" /quiet InstallAllUsers=0 TargetDir="%SCRIPT_DIR%python_local" PrependPath=0 AssociateFiles=0 ShortCuts=0 Include_doc=0
-    
-    del "%SCRIPT_DIR%python_installer.exe"
+    :: Extract the zip archive
+    echo Extracting Python locally to %SCRIPT_DIR%python_local...
+    powershell -Command "Expand-Archive -Path '%SCRIPT_DIR%python_embed.zip' -DestinationPath '%SCRIPT_DIR%python_local'; Remove-Item -Path '%SCRIPT_DIR%python_embed.zip' -Force"
     
     if not exist "%SCRIPT_DIR%python_local\python.exe" (
-        echo Failed to install Python locally. Please install it manually.
+        echo Failed to extract Python locally.
+        pause
+        exit /b 1
+    )
+    
+    :: Configure the local Python path structure to support standard package libraries
+    powershell -Command "Add-Content -Path '%SCRIPT_DIR%python_local\python311._pth' -Value 'import site'"
+    
+    :: Download get-pip.py to bootstrap pip
+    echo Bootstrapping pip manager...
+    powershell -Command "Write-Host 'Downloading get-pip.py...'; $ProgressPreference = 'SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://bootstrap.pypa.io/get-pip.py' -OutFile '%SCRIPT_DIR%get-pip.py'"
+    
+    if exist "%SCRIPT_DIR%get-pip.py" (
+        "%SCRIPT_DIR%python_local\python.exe" "%SCRIPT_DIR%get-pip.py" --no-warn-script-location
+        del "%SCRIPT_DIR%get-pip.py"
+    )
+    
+    if not exist "%SCRIPT_DIR%python_local\Scripts\pip.exe" (
+        echo Failed to bootstrap pip inside local Python. Please install Python manually.
         pause
         exit /b 1
     )
     
     echo Installing Python dependencies locally...
-    "%SCRIPT_DIR%python_local\python.exe" -m pip install --upgrade pip
-    "%SCRIPT_DIR%python_local\python.exe" -m pip install yt-dlp numpy
+    "%SCRIPT_DIR%python_local\python.exe" -m pip install yt-dlp numpy --no-warn-script-location
 )
 
 :: 2. Setup local FFmpeg binaries if they don't exist
