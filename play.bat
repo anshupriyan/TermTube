@@ -38,8 +38,8 @@ if not exist "%SCRIPT_DIR%python_local\python.exe" (
         exit /b 1
     )
     
-    :: Configure the local Python path structure to support standard package libraries
-    "%POWERSHELL_BIN%" -Command "Add-Content -Path '%SCRIPT_DIR%python_local\python311._pth' -Value 'import site'"
+    :: Configure the local Python path structure to support standard package libraries and local project modules
+    "%POWERSHELL_BIN%" -Command "Add-Content -Path '%SCRIPT_DIR%python_local\python311._pth' -Value '..'; Add-Content -Path '%SCRIPT_DIR%python_local\python311._pth' -Value '..\termtube'; Add-Content -Path '%SCRIPT_DIR%python_local\python311._pth' -Value 'import site'"
     
     :: Download get-pip.py to bootstrap pip
     echo Bootstrapping pip manager...
@@ -58,6 +58,20 @@ if not exist "%SCRIPT_DIR%python_local\python.exe" (
     
     echo Installing Python dependencies locally...
     "%SCRIPT_DIR%python_local\python.exe" -m pip install yt-dlp numpy --no-warn-script-location
+)
+
+:: Ensure local Python path structure is properly configured (auto-fix for existing installations)
+if exist "%SCRIPT_DIR%python_local\python311._pth" (
+    findstr /C:"..\termtube" "%SCRIPT_DIR%python_local\python311._pth" >nul
+    if errorlevel 1 (
+        echo Configuring local Python paths...
+        echo ..>> "%SCRIPT_DIR%python_local\python311._pth"
+        echo ..\termtube>> "%SCRIPT_DIR%python_local\python311._pth"
+        findstr /C:"import site" "%SCRIPT_DIR%python_local\python311._pth" >nul
+        if errorlevel 1 (
+            echo import site>> "%SCRIPT_DIR%python_local\python311._pth"
+        )
+    )
 )
 
 :: 2. Setup local FFmpeg binaries if they don't exist
