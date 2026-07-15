@@ -68,8 +68,22 @@ if [ -z "$YT_URL" ]; then
             PLAY_STYLE="--style halfblock"
         fi
         echo ""
+        echo "Select playback frame rate:"
+        echo "  1. 15 FPS"
+        echo "  2. 24 FPS"
+        echo "  3. 30 FPS"
+        echo ""
+        read -p "Select Option (1, 2 or 3) [Default: 1]: " FPS_CHOICE
+        if [ "$FPS_CHOICE" = "2" ]; then
+            PLAY_FPS="--fps 24"
+        elif [ "$FPS_CHOICE" = "3" ]; then
+            PLAY_FPS="--fps 30"
+        else
+            PLAY_FPS="--fps 15"
+        fi
+        echo ""
         
-        "$SCRIPT_DIR/.venv/bin/python3" -m termtube.cli "$YT_URL" $PLAY_STYLE
+        "$SCRIPT_DIR/.venv/bin/python3" -m termtube.cli "$YT_URL" $PLAY_STYLE $PLAY_FPS
         
         echo ""
         echo "Playback finished."
