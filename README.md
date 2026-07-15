@@ -1,5 +1,9 @@
 # TermTube 📺
 
+<p align="center">
+  <img src="assets/ascii_demo.gif" alt="TermTube ASCII Demo" width="800" />
+</p>
+
 A high-performance command-line YouTube video and audio player that renders videos directly in your terminal using ANSI color codes or ASCII text art, synchronized with live audio.
 
 Developed for modern terminal emulators with truecolor support.
@@ -8,8 +12,23 @@ Developed for modern terminal emulators with truecolor support.
 
 ## Features
 
-- **Truecolor Block Rendering (`--style halfblock`)**: Packs two vertical pixels per character cell using Unicode half-block characters (`▀`), rendering high-density full-color visual video frames.
 - **ASCII Density Art (`--style ascii`)**: Renders details using a custom density character ramp while retaining true RGB color values per pixel.
+
+  <p align="center">
+    <img src="assets/ascii_render.png" alt="ASCII Render" width="55%" />
+    <img src="assets/ascii_detail.png" alt="ASCII Detail" width="35%" />
+  </p>
+
+- **Truecolor Block Rendering (`--style halfblock`)**: Packs two vertical pixels per character cell using Unicode half-block characters (`▀`), rendering high-density full-color visual video frames.
+
+  <p align="center">
+    <img src="assets/halfblock_demo.gif" alt="TermTube Halfblock Demo" width="800" />
+  </p>
+
+  <p align="center">
+    <img src="assets/halfblock_render.png" alt="Halfblock Render" width="55%" />
+    <img src="assets/halfblock_detail.png" alt="Halfblock Detail" width="35%" />
+  </p>
 - **Auto-Reconnection**: Resilient socket streaming. Ffmpeg/ffplay automatically reconnect and resume if YouTube throttles or drops the connection during playback.
 - **Dynamic Terminal Scaling**: Auto-detects terminal width and height to fit the window cleanly, preventing awkward layout wraps or console buffer scrolling.
 - **Synced Audio**: Launches synced audio streaming alongside the video with clock-driven drift tracking.
