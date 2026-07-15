@@ -1,8 +1,10 @@
 # Exclude large executable binaries (prevents GitHub 100MB file size limit issues)
 ffmpeg.exe
 ffplay.exe
+deno.exe
 ffmpeg
 ffplay
+
 
 # Exclude Python build/distribution/virtualenv artifacts
 __pycache__/
