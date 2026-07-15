@@ -1,4 +1,33 @@
+import sys
+import shutil
+import subprocess
 import yt_dlp
+
+class YtDlpUpdatedError(Exception):
+    """Raised when yt-dlp is updated and the process must be restarted."""
+    pass
+
+def update_yt_dlp() -> None:
+    """Updates yt-dlp to the latest version via pip."""
+    print("Updating yt-dlp to the latest version...", file=sys.stderr)
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", "-U", "yt-dlp"],
+            check=True
+        )
+        print("yt-dlp updated successfully!", file=sys.stderr)
+    except subprocess.CalledProcessError as e:
+        print(f"Error updating yt-dlp: {e}", file=sys.stderr)
+        raise
+
+def _get_js_runtime_extractor_args() -> dict:
+    """
+    Checks if 'deno' is available on PATH.
+    Returns extractor args configuration for yt-dlp to use deno for JavaScript execution.
+    """
+    if shutil.which("deno"):
+        return {"youtube": {"js_runtimes": ["deno"]}}
+    return {}
 
 def resolve_streams(url: str) -> dict:
     """
@@ -9,12 +38,35 @@ def resolve_streams(url: str) -> dict:
     Returns a dict:
         {"video_url": str, "audio_url": str, "width": int, "height": int, "fps": float}
     """
+    extractor_args = _get_js_runtime_extractor_args()
+    if extractor_args:
+        print("Using deno JS runtime for extraction", file=sys.stderr)
+    else:
+        print("No deno runtime found, using yt-dlp defaults", file=sys.stderr)
+
     ydl_opts = {
         'quiet': True,
         'no_warnings': True,
+        'extractor_args': extractor_args,
     }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
+    if extractor_args:
+        ydl_opts['remote_components'] = ['ejs:github']
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+    except yt_dlp.utils.DownloadError as e:
+        print(f"Error resolving stream: {e}", file=sys.stderr)
+        print("Attempting to auto-update yt-dlp to resolve the issue...", file=sys.stderr)
+        try:
+            update_yt_dlp()
+            raise YtDlpUpdatedError("yt-dlp updated, please rerun the command")
+        except Exception as update_err:
+            if isinstance(update_err, YtDlpUpdatedError):
+                raise
+            # Re-raise original error if update failed
+            raise e
+
 
     formats = info.get('formats', [])
     video_formats = []

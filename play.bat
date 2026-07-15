@@ -95,6 +95,17 @@ if "!DOWNLOAD_FF!"=="y" (
     )
 )
 
+:: 2.5 Setup local Deno if not already present in the directory
+if not exist "%SCRIPT_DIR%deno.exe" (
+    echo deno.exe is missing from the project directory.
+    echo Downloading Deno binary locally...
+    "%POWERSHELL_BIN%" -Command "$ProgressPreference = 'SilentlyContinue'; Write-Host 'Downloading Deno...'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/denoland/deno/releases/latest/download/deno-x86_64-pc-windows-msvc.zip' -OutFile '%SCRIPT_DIR%deno.zip'; Write-Host 'Extracting Deno...'; Expand-Archive -Path '%SCRIPT_DIR%deno.zip' -DestinationPath '%SCRIPT_DIR%deno_temp'; Copy-Item -Path '%SCRIPT_DIR%deno_temp\deno.exe' -Destination '%SCRIPT_DIR%deno.exe'; Remove-Item -Path '%SCRIPT_DIR%deno.zip', '%SCRIPT_DIR%deno_temp' -Recurse -Force"
+    
+    if not exist "%SCRIPT_DIR%deno.exe" (
+        echo Failed to download Deno binary.
+    )
+)
+
 :: 3. Configure paths for local binaries
 set "PATH=%SCRIPT_DIR%;%PATH%"
 set "PYTHONPATH=%SCRIPT_DIR%termtube;%PYTHONPATH%"

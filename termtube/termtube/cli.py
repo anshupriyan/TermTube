@@ -3,7 +3,7 @@ import sys
 import time
 import subprocess
 import shutil
-from termtube.resolver import resolve_streams
+from termtube.resolver import resolve_streams, update_yt_dlp, YtDlpUpdatedError
 from termtube.player import open_video_frame_pipe, read_frame, start_audio
 from termtube.render import frame_to_halfblock_ansi, benchmark_render, frame_to_ascii_color
 
@@ -13,19 +13,34 @@ def main():
         sys.stdout.reconfigure(encoding='utf-8')
 
     parser = argparse.ArgumentParser(description="Terminal YouTube Video Player")
-    parser.add_argument("url", help="YouTube video URL to stream")
+    parser.add_argument("url", nargs="?", help="YouTube video URL to stream")
+    parser.add_argument("-u", "--update", action="store_true", help="Update yt-dlp to the latest version and exit")
     parser.add_argument("--cols", type=int, default=None, help="Target width in columns (default: auto-detect)")
     parser.add_argument("--fps", type=int, default=15, help="Target frames per second (default: 15)")
     parser.add_argument("--style", choices=["halfblock", "ascii"], default="halfblock", help="Rendering style (default: halfblock)")
     parser.add_argument("--ramp", default=" .:-=+*#%@", help="ASCII character density ramp (default: ' .:-=+*#%%@')")
     args = parser.parse_args()
 
+    if args.update:
+        try:
+            update_yt_dlp()
+            sys.exit(0)
+        except Exception:
+            sys.exit(1)
+
+    if not args.url:
+        parser.error("the following arguments are required: url (unless -u/--update is specified)")
+
     print(f"Resolving video stream for URL: {args.url}", file=sys.stderr)
     try:
         info = resolve_streams(args.url)
+    except YtDlpUpdatedError as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
         print(f"Error resolving stream: {e}", file=sys.stderr)
         sys.exit(1)
+
 
     width = info["width"]
     height = info["height"]
