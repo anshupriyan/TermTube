@@ -18,11 +18,17 @@ if [ ! -d "$SCRIPT_DIR/.venv" ]; then
     python3 -m venv "$SCRIPT_DIR/.venv"
     if [ $? -ne 0 ]; then
         echo "Failed to create virtual environment."
+        rm -rf "$SCRIPT_DIR/.venv"
         exit 1
     fi
     echo "Installing Python dependencies locally..."
     "$SCRIPT_DIR/.venv/bin/python3" -m pip install --upgrade pip
     "$SCRIPT_DIR/.venv/bin/python3" -m pip install yt-dlp numpy
+    if [ $? -ne 0 ]; then
+        echo "Failed to install dependencies."
+        rm -rf "$SCRIPT_DIR/.venv"
+        exit 1
+    fi
 fi
 
 # 2.5 Setup local Deno if not already present globally or locally
