@@ -15,7 +15,7 @@ if ! command -v python3 &> /dev/null; then
 fi
 
 if command -v python3 &> /dev/null; then
-    python3 -c "import venv" &> /dev/null
+    python3 -m ensurepip --version &> /dev/null
     if [ $? -ne 0 ]; then
         missing_deps+=("python3-venv")
     fi
@@ -39,7 +39,8 @@ if [ ${#missing_deps[@]} -ne 0 ]; then
             if [ "$dep" = "python3" ]; then
                 apt_packages+=("python3")
             elif [ "$dep" = "python3-venv" ]; then
-                apt_packages+=("python3-venv" "python3-pip")
+                PYVER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+                apt_packages+=("python${PYVER}-venv" "python3-pip")
             elif [ "$dep" = "ffmpeg" ]; then
                 apt_packages+=("ffmpeg")
             fi
@@ -109,9 +110,12 @@ if [ ${#missing_deps[@]} -ne 0 ]; then
         echo "Failed to install Python 3. Please install it manually."
         exit 1
     fi
-    python3 -c "import venv" &> /dev/null
+    python3 -m ensurepip --version &> /dev/null
     if [ $? -ne 0 ]; then
-        echo "Failed to install Python venv support. Please install python3-venv manually."
+        PYVER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+        echo "Failed to install Python venv/ensurepip support."
+        echo "Attempted package: python${PYVER}-venv"
+        echo "Current Python version: $(python3 --version)"
         exit 1
     fi
     if ! check_cmd ffmpeg || ! check_cmd ffplay; then
