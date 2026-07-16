@@ -1,14 +1,124 @@
 #!/bin/bash
 
-# 1. Check if Python 3 is installed
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Helper function to check if command exists globally or locally in the project directory
+check_cmd() {
+    command -v "$1" &> /dev/null || [ -f "$SCRIPT_DIR/$1" ]
+}
+
+# 1. Detect missing system dependencies (Python3, venv, ffmpeg, ffplay)
+missing_deps=()
+
 if ! command -v python3 &> /dev/null; then
-    echo "Python 3 is not installed. Please install Python 3 to continue."
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "Tip: Run 'brew install python'"
-    else
-        echo "Tip: Run 'sudo apt install python3' or similar for your package manager"
+    missing_deps+=("python3")
+fi
+
+if command -v python3 &> /dev/null; then
+    python3 -c "import venv" &> /dev/null
+    if [ $? -ne 0 ]; then
+        missing_deps+=("python3-venv")
     fi
-    exit 1
+fi
+
+if ! check_cmd ffmpeg || ! check_cmd ffplay; then
+    missing_deps+=("ffmpeg")
+fi
+
+if [ ${#missing_deps[@]} -ne 0 ]; then
+    echo "The following system dependencies are missing: ${missing_deps[*]}"
+    echo "Attempting to install them automatically (may prompt for your sudo password)..."
+    
+    # Detect OS / Package Manager
+    if [ -f /etc/debian_version ]; then
+        echo "Detected Debian/Ubuntu system. Installing via apt-get..."
+        sudo apt-get update
+        
+        apt_packages=()
+        for dep in "${missing_deps[@]}"; do
+            if [ "$dep" = "python3" ]; then
+                apt_packages+=("python3")
+            elif [ "$dep" = "python3-venv" ]; then
+                apt_packages+=("python3-venv" "python3-pip")
+            elif [ "$dep" = "ffmpeg" ]; then
+                apt_packages+=("ffmpeg")
+            fi
+        done
+        
+        sudo apt-get install -y "${apt_packages[@]}"
+        
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "Detected macOS system. Installing via Homebrew..."
+        if ! command -v brew &> /dev/null; then
+            echo "Homebrew is not installed. Please install Homebrew first (https://brew.sh) to proceed."
+            exit 1
+        fi
+        
+        brew_packages=()
+        for dep in "${missing_deps[@]}"; do
+            if [ "$dep" = "python3" ]; then
+                brew_packages+=("python")
+            elif [ "$dep" = "ffmpeg" ]; then
+                brew_packages+=("ffmpeg")
+            fi
+        done
+        
+        if [ ${#brew_packages[@]} -ne 0 ]; then
+            brew install "${brew_packages[@]}"
+        fi
+        
+    elif [ -f /etc/arch-release ]; then
+        echo "Detected Arch Linux. Installing via pacman..."
+        pacman_packages=()
+        for dep in "${missing_deps[@]}"; do
+            if [ "$dep" = "python3" ]; then
+                pacman_packages+=("python")
+            elif [ "$dep" = "ffmpeg" ]; then
+                pacman_packages+=("ffmpeg")
+            fi
+        done
+        
+        if [ ${#pacman_packages[@]} -ne 0 ]; then
+            sudo pacman -S --noconfirm "${pacman_packages[@]}"
+        fi
+        
+    elif [ -f /etc/fedora-release ] || [ -f /etc/redhat-release ]; then
+        echo "Detected Fedora/RHEL. Installing via dnf..."
+        dnf_packages=()
+        for dep in "${missing_deps[@]}"; do
+            if [ "$dep" = "python3" ]; then
+                dnf_packages+=("python3")
+            elif [ "$dep" = "python3-venv" ]; then
+                dnf_packages+=("python3-venv")
+            elif [ "$dep" = "ffmpeg" ]; then
+                dnf_packages+=("ffmpeg")
+            fi
+        done
+        
+        if [ ${#dnf_packages[@]} -ne 0 ]; then
+            sudo dnf install -y "${dnf_packages[@]}"
+        fi
+    else
+        echo "Could not detect package manager automatically."
+        echo "Please install the missing dependencies manually: ${missing_deps[*]}"
+        exit 1
+    fi
+    
+    # Re-verify critical dependencies after installation attempt
+    if ! command -v python3 &> /dev/null; then
+        echo "Failed to install Python 3. Please install it manually."
+        exit 1
+    fi
+    python3 -c "import venv" &> /dev/null
+    if [ $? -ne 0 ]; then
+        echo "Failed to install Python venv support. Please install python3-venv manually."
+        exit 1
+    fi
+    if ! check_cmd ffmpeg || ! check_cmd ffplay; then
+        echo "Failed to install ffmpeg/ffplay. Please install them manually."
+        exit 1
+    fi
+    echo "All system dependencies successfully installed!"
 fi
 
 # 2. Setup local virtual environment (.venv)
