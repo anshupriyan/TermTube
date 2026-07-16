@@ -1,10 +1,10 @@
-# TermTube 📺
-
+# TermTube
+Play YouTube videos directly in your terminal with synchronized audio using ASCII rendering or ANSI truecolor.
 <p align="center">
   <img src="assets/ascii_demo.gif" alt="TermTube ASCII Demo" width="800" />
 </p>
 
-Play YouTube videos directly in your terminal with synchronized audio using ASCII rendering or ANSI truecolor.
+
 
 ---
 
