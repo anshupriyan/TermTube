@@ -4,7 +4,7 @@ Play YouTube videos directly in your terminal with synchronized audio using ASCI
   <img src="assets/ascii_demo.gif" alt="TermTube ASCII Demo" width="800" />
 </p>
 
-
+TermTube is an open-source command-line YouTube player that streams videos directly inside modern terminal emulators using ANSI truecolor or ASCII rendering, while keeping audio synchronized in real time.
 
 ---
 
