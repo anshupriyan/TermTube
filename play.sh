@@ -25,6 +25,45 @@ if [ ! -d "$SCRIPT_DIR/.venv" ]; then
     "$SCRIPT_DIR/.venv/bin/python3" -m pip install yt-dlp numpy
 fi
 
+# 2.5 Setup local Deno if not already present globally or locally
+if ! command -v deno &> /dev/null && [ ! -f "$SCRIPT_DIR/deno" ]; then
+    echo "deno is missing. Attempting to download Deno binary locally..."
+    
+    # Detect OS and architecture to download appropriate zip
+    DENO_URL=""
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        if [[ "$(uname -m)" == "arm64" ]]; then
+            DENO_URL="https://github.com/denoland/deno/releases/latest/download/deno-aarch64-apple-darwin.zip"
+        else
+            DENO_URL="https://github.com/denoland/deno/releases/latest/download/deno-x86_64-apple-darwin.zip"
+        fi
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        if [[ "$(uname -m)" == "x86_64" ]]; then
+            DENO_URL="https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip"
+        fi
+    fi
+    
+    if [ -n "$DENO_URL" ]; then
+        echo "Downloading Deno from $DENO_URL..."
+        if command -v curl &> /dev/null; then
+            curl -L "$DENO_URL" -o "$SCRIPT_DIR/deno.zip"
+        elif command -v wget &> /dev/null; then
+            wget "$DENO_URL" -O "$SCRIPT_DIR/deno.zip"
+        fi
+        
+        if [ -f "$SCRIPT_DIR/deno.zip" ]; then
+            echo "Extracting Deno..."
+            unzip -o "$SCRIPT_DIR/deno.zip" -d "$SCRIPT_DIR"
+            rm "$SCRIPT_DIR/deno.zip"
+            chmod +x "$SCRIPT_DIR/deno"
+        else
+            echo "Failed to download Deno zip file."
+        fi
+    else
+        echo "Unsupported OS/architecture for automatic Deno installation. Please install Deno manually."
+    fi
+fi
+
 # 3. Configure paths for ffmpeg and ffplay
 export PATH="$SCRIPT_DIR:$PATH"
 export PYTHONPATH="$SCRIPT_DIR/termtube:$PYTHONPATH"
