@@ -136,3 +136,16 @@ There's no single best setting for every machine — it depends on your terminal
   ```bash
   termtube "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --style ascii --cols 80
   ```
+
+
+
+## Keywords
+
+- Terminal YouTube player
+- ANSI renderer
+- ASCII video player
+- Terminal graphics
+- Unicode rendering
+- FFmpeg streaming
+- CLI media player
+- Truecolor terminal
