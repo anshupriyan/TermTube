@@ -104,6 +104,30 @@ Options:
   --ramp RAMP          ASCII character density ramp (default: ' .:-=+*#%@')
 ```
 
+---
+
+## Display Quality Note
+
+TermTube's rendering detail depends on your terminal's font size, not on TermTube itself. This is a property of how terminals work — a terminal measures its size in character cells, not pixels, so:
+
+- **Larger font size / higher display scaling** → fewer character cells fit on screen → lower detail
+- **Smaller font size / lower display scaling** → more character cells fit on screen → higher detail
+
+If your video looks blocky or low-detail, try reducing your terminal's font size (usually `Ctrl -` or `Cmd -` in most terminal apps) and rerun TermTube — this alone can dramatically sharpen the output without changing anything else. You can also override the auto-detected width manually with `--cols <number>` if you want to force a specific resolution.
+
+### Finding your best balance
+
+Higher detail (more columns, smaller font) means more text to render per frame, which can strain slower machines or connections — this can show up as choppy playback, audio/video drift, or dropped frames, especially on longer videos. If you notice this happening, there's a tradeoff to balance rather than a single "correct" setting:
+
+- **Lower `--cols`** (or a larger terminal font) → less detail, but smoother and more stable playback
+- **Lower `--fps`** (e.g. 15 instead of 24 or 30) → reduces how much rendering work happens per second, often the easiest fix for choppy playback
+- **`--style halfblock`** vs **`--style ascii`** → try both, since render cost and visual density differ between the two modes
+- Check the drift and dropped-frame numbers printed during/after playback — if drift keeps growing or a lot of frames are being dropped, that's a sign to reduce `--cols` and/or `--fps` until playback stabilizes
+
+There's no single best setting for every machine — it depends on your terminal, hardware, and network speed. A bit of experimentation with these options usually finds a sweet spot between sharpness and smooth playback.
+
+---
+
 ### Examples
 
 - **High-definition color rendering**:

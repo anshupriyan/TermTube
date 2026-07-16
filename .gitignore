@@ -2,9 +2,9 @@
 ffmpeg.exe
 ffplay.exe
 deno.exe
+deno
 ffmpeg
 ffplay
-
 
 # Exclude Python build/distribution/virtualenv artifacts
 __pycache__/

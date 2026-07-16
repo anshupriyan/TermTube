@@ -71,7 +71,7 @@ def frame_to_ascii_color(frame: np.ndarray, ramp: str = " .:-=+*#%@") -> str:
     all_rows = []
     for y in range(H):
         row_str = "".join([
-            f"\x1b[38;2;{red};{green};{blue}m{ramp[idx]}"
+            f"\x1b[48;2;0;0;0m\x1b[38;2;{red};{green};{blue}m{ramp[idx]}"
             for red, green, blue, idx in zip(r_uint8[y], g_uint8[y], b_uint8[y], idx_arr[y])
         ])
         all_rows.append(row_str + "\x1b[0m\n")

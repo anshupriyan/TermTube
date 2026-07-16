@@ -124,6 +124,8 @@ if "!YT_URL!"=="" (
 set "YT_URL="
 set "PLAY_STYLE="
 set "STYLE_CHOICE="
+set "PLAY_FPS="
+set "FPS_CHOICE="
 
 echo.
 echo ===================================================
@@ -149,7 +151,22 @@ if "!STYLE_CHOICE!"=="2" (
 )
 echo.
 
-"%SCRIPT_DIR%python_local\python.exe" -m termtube.cli "!YT_URL!" !PLAY_STYLE!
+echo Select playback frame rate:
+echo   1. 15 FPS
+echo   2. 24 FPS
+echo   3. 30 FPS
+echo.
+set /p "FPS_CHOICE=Select Option (1, 2 or 3) [Default: 1]: "
+if "!FPS_CHOICE!"=="2" (
+    set "PLAY_FPS=--fps 24"
+) else if "!FPS_CHOICE!"=="3" (
+    set "PLAY_FPS=--fps 30"
+) else (
+    set "PLAY_FPS=--fps 15"
+)
+echo.
+
+"%SCRIPT_DIR%python_local\python.exe" -m termtube.cli "!YT_URL!" !PLAY_STYLE! !PLAY_FPS!
 
 echo.
 echo Playback finished.
