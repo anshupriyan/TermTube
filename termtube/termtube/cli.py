@@ -99,8 +99,12 @@ def main():
         print(f"Failed to open video frame pipe: {e}", file=sys.stderr)
         sys.exit(1)
 
-    # Hide cursor, set black background/white text, and clear screen once at startup
-    sys.stdout.write("\x1b[?25l\x1b[40m\x1b[37m\x1b[2J\x1b[H")
+    # Hide cursor, set black background/white text, and fill entire terminal viewport with black spaces
+    fill_str = "\x1b[?25l\x1b[40m\x1b[37m\x1b[H"
+    fill_str += (" " * term_size.columns + "\n") * (term_size.lines - 1)
+    fill_str += " " * term_size.columns
+    fill_str += "\x1b[H"
+    sys.stdout.write(fill_str)
     sys.stdout.flush()
 
     try:
