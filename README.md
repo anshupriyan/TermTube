@@ -4,9 +4,7 @@
   <img src="assets/ascii_demo.gif" alt="TermTube ASCII Demo" width="800" />
 </p>
 
-A high-performance command-line YouTube video and audio player that renders videos directly in your terminal using ANSI color codes or ASCII text art, synchronized with live audio.
-
-Developed for modern terminal emulators with truecolor support.
+Play YouTube videos directly in your terminal with synchronized audio using ASCII rendering or ANSI truecolor.
 
 ---
 
