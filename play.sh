@@ -216,19 +216,83 @@ if [ -z "$YT_URL" ]; then
         fi
         
         echo ""
-        echo "Select rendering style:"
-        echo "  1. Block characters (hd color)"
-        echo "  2. ASCII density characters (text art)"
+        echo "Select rendering style / character set:"
+        echo "  1. Block characters (hd color) [Default]"
+        echo "  2. Block Shades ( ░▒▓█ - Deep Shadows & Bright Light)"
+        echo "  3. Binary 0101 (Matrix Digital Stream)"
+        echo "  4. High-Contrast ASCII (Vivid highlights & deep shadows)"
+        echo "  5. Classic ASCII (Standard text art)"
+        echo "  6. Custom Characters (Type your own ramp)"
         echo ""
-        read -p "Select Option (1 or 2) [Default: 1]: " STYLE_CHOICE
+        read -p "Select Option (1-6) [Default: 1]: " STYLE_CHOICE
         if [ "$STYLE_CHOICE" = "2" ]; then
-            PLAY_STYLE="--style ascii"
+            PLAY_STYLE="--style shades"
+        elif [ "$STYLE_CHOICE" = "3" ]; then
+            PLAY_STYLE="--style binary"
+        elif [ "$STYLE_CHOICE" = "4" ]; then
+            PLAY_STYLE="--style ascii --preset highcontrast"
+        elif [ "$STYLE_CHOICE" = "5" ]; then
+            PLAY_STYLE="--style ascii --preset ascii"
+        elif [ "$STYLE_CHOICE" = "6" ]; then
+            echo ""
+            read -p "Enter custom character ramp (from dark to bright): " CUSTOM_RAMP
+            if [ -z "$CUSTOM_RAMP" ]; then
+                PLAY_STYLE="--style ascii"
+            else
+                PLAY_STYLE="--style ascii --ramp \"$CUSTOM_RAMP\""
+            fi
         else
             PLAY_STYLE="--style halfblock"
         fi
         echo ""
+
+        echo "Select contrast & lighting tuning:"
+        echo "  1. Standard (Natural balance) [Default]"
+        echo "  2. High Contrast & Vivid Light (Deep blacks & glowing highlights)"
+        echo "  3. Ultra Bright (Light boost for dark videos)"
+        echo "  4. Dynamic Auto-Contrast (Auto-stretches lighting range)"
+        echo ""
+        read -p "Select Option (1-4) [Default: 1]: " LIGHT_CHOICE
+        if [ "$LIGHT_CHOICE" = "2" ]; then
+            PLAY_LIGHT="--contrast 1.5 --light-boost 0.15"
+        elif [ "$LIGHT_CHOICE" = "3" ]; then
+            PLAY_LIGHT="--contrast 1.2 --brightness 0.15 --light-boost 0.25"
+        elif [ "$LIGHT_CHOICE" = "4" ]; then
+            PLAY_LIGHT="--auto-contrast --contrast 1.3"
+        else
+            PLAY_LIGHT=""
+        fi
+        echo ""
+
+        echo "Select color theme:"
+        echo "  1. Full Truecolor RGB [Default]"
+        echo "  2. Matrix Neon Green (Cyberpunk phosphor glow)"
+        echo "  3. Cyberpunk (Neon Cyan & Magenta)"
+        echo "  4. Glitch Multicolor (Chromatic Aberration & VHS Split)"
+        echo "  5. Rainbow Psychedelic (Full Neon Spectrum)"
+        echo "  6. Amber CRT (Vintage monitor glow)"
+        echo "  7. Monochrome Grayscale (High-contrast B&W)"
+        echo ""
+        read -p "Select Option (1-7) [Default: 1]: " COLOR_CHOICE
+        if [ "$COLOR_CHOICE" = "2" ]; then
+            PLAY_COLOR="--color-mode matrix"
+        elif [ "$COLOR_CHOICE" = "3" ]; then
+            PLAY_COLOR="--color-mode cyberpunk"
+        elif [ "$COLOR_CHOICE" = "4" ]; then
+            PLAY_COLOR="--color-mode glitch"
+        elif [ "$COLOR_CHOICE" = "5" ]; then
+            PLAY_COLOR="--color-mode rainbow"
+        elif [ "$COLOR_CHOICE" = "6" ]; then
+            PLAY_COLOR="--color-mode amber"
+        elif [ "$COLOR_CHOICE" = "7" ]; then
+            PLAY_COLOR="--color-mode gray"
+        else
+            PLAY_COLOR="--color-mode rgb"
+        fi
+        echo ""
+
         echo "Select playback frame rate:"
-        echo "  1. 15 FPS"
+        echo "  1. 15 FPS [Default]"
         echo "  2. 24 FPS"
         echo "  3. 30 FPS"
         echo ""
@@ -241,8 +305,15 @@ if [ -z "$YT_URL" ]; then
             PLAY_FPS="--fps 15"
         fi
         echo ""
+        echo "==================================================="
+        echo " Tip: Switch styles & colors live with keyboard!"
+        echo "   [S] Cycle Styles  [1-6] Jump to Style [H] HD Color"
+        echo "   [C] Cycle Colors  [G] Glitch Mode     [M] Matrix"
+        echo "   [+/-] Contrast    []]/[[] Brightness  [Q] Quit"
+        echo "==================================================="
+        echo ""
         
-        "$SCRIPT_DIR/.venv/bin/python3" -m termtube.cli "$YT_URL" $PLAY_STYLE $PLAY_FPS
+        "$SCRIPT_DIR/.venv/bin/python3" -m termtube.cli "$YT_URL" $PLAY_STYLE $PLAY_LIGHT $PLAY_COLOR $PLAY_FPS
         
         echo ""
         echo "Playback finished."
