@@ -22,30 +22,34 @@ TermTube is an open-source command-line YouTube player that streams videos direc
 
 ## ✨ Features
 
-- 🎨 **ANSI Truecolor Rendering (`--style halfblock`)**
+- 🎨 **ANSI Truecolor Half-Block Rendering (`--style halfblock`)**
   - High-density full-color playback using Unicode half-block (`▀`) characters.
   - Packs two vertical pixels into a single terminal cell for maximum visual fidelity.
 
-<p align="center">
-<img src="assets/halfblock_demo.gif" width="850">
-</p>
+- 📝 **Vibrant Character Presets & ASCII Art**
+  - **Block Shades (`--style shades` or `--preset shades`)**: Smooth Unicode density blocks (` ░▒▓█`) with rich shadows, vivid mid-tones, and bright highlights.
+  - **Binary 0101 (`--style binary` or `--preset binary_0101`)**: Stream video in digital matrix binary `0` and `1` streams!
+  - **High-Contrast ASCII (`--preset highcontrast`)**: Deep blacks and luminous bright highlights.
+  - **Matrix Rain (`--preset matrix`)**: Digital code characters.
+  - **Dots / Math / Minimal / Detailed**: Built-in artistic character sets.
+  - **Custom Ramps (`--ramp "..."`)**: Supply any custom character sequence.
 
-<p align="center">
-<img src="assets/halfblock_render.png" width="55%">
-<img src="assets/halfblock_detail.png" width="35%">
-</p>
+- ☀️ **Contrast & Lighting Controls**
+  - **Contrast (`--contrast 1.5`)**: Multiplier to punch up deep blacks and luminous highlights.
+  - **Brightness (`--brightness 0.1`)**: Offset to brighten dark scenes or adjust exposure.
+  - **Gamma (`--gamma 0.8`)**: Non-linear lighting curve adjustment.
+  - **Auto-Contrast (`--auto-contrast`)**: Dynamically stretches luminance range to maximize visual clarity on any video.
+  - **Light & Color Boost (`--light-boost 0.2`)**: Increases saturation and color glow.
 
----
-
-- 📝 **ASCII Density Rendering (`--style ascii`)**
-  - Converts video frames into colored ASCII art using a configurable density ramp while preserving RGB colors.
-
-<p align="center">
-<img src="assets/ascii_render.png" width="55%">
-<img src="assets/ascii_detail.png" width="35%">
-</p>
-
----
+- 🌈 **Aesthetic Color Themes (`--color-mode`)**
+  - `rgb`: Full 24-bit ANSI truecolor.
+  - `glitch`: Multicolor chromatic aberration + VHS scanline split.
+  - `rainbow`: Psychedelic neon rainbow spectrum.
+  - `matrix`: Glowing cyberpunk green phosphor monitor.
+  - `cyberpunk`: Electric neon cyan and magenta.
+  - `amber`: Vintage cathode-ray tube (CRT) amber phosphor.
+  - `fire`: Thermal flame gradient.
+  - `gray`: Crisp monochrome black & white.
 
 - 🔊 **Synchronized Audio**
   - Streams audio alongside video with clock-driven synchronization and drift tracking.
@@ -53,13 +57,27 @@ TermTube is an open-source command-line YouTube player that streams videos direc
 - 📐 **Automatic Terminal Scaling**
   - Detects terminal size automatically to maximize detail while preventing wrapping and scrolling.
 
-- 🔄 **Automatic Reconnection**
-  - FFmpeg automatically reconnects when YouTube temporarily throttles or drops the connection.
+- ⌨️ **Live Real-Time Hotkeys (No Interruption!)**
+  - Change styles, characters, lighting, and colors mid-playback instantaneously with your keyboard:
 
-- ⚡ **Cross-platform**
-  - Windows
-  - Linux
-  - macOS
+| Key | Action | Effect |
+| :--- | :--- | :--- |
+| `S` / `Tab` | **Cycle Styles** | Cycles through all styles and wraps 7/7 → 1/7 |
+| `1` | **Binary 0101** | Instantly switches to digital matrix binary stream (`0101`) |
+| `2` | **Block Shades** | Switches to smooth density blocks (` ░▒▓█`) |
+| `3` | **High-Contrast** | Switches to high-contrast ASCII art |
+| `4` | **Classic ASCII** | Switches to standard ASCII density art |
+| `5` | **Matrix Code** | Switches to Matrix code characters |
+| `6` | **Dots** | Switches to circular dot characters (`·•○●█`) |
+| `0` / `H` | **Half-Block HD** | Switches to HD Truecolor half-blocks (`▀`) |
+| `C` | **Cycle Colors** | Cycles RGB -> Matrix -> Cyberpunk -> Glitch -> Rainbow -> Amber -> Fire -> Gray |
+| `G` | **Glitch Mode** | Quick toggle VHS multicolor chromatic aberration glitch |
+| `M` | **Matrix Green** | Quick toggle Cyberpunk matrix neon green glow |
+| `+` / `-` | **Contrast +/-** | Boosts or lowers contrast dynamically |
+| `]` / `[` | **Brightness +/-**| Adjusts brightness on the fly |
+| `A` | **Auto-Contrast** | Toggles dynamic range lighting stretch ON/OFF |
+| `I` | **Invert Ramp** | Inverts dark and bright characters |
+| `Q` | **Quit** | Exits playback cleanly |
 
 ---
 
@@ -89,8 +107,9 @@ On the first launch TermTube automatically downloads and configures:
 After setup:
 
 1. Paste a YouTube URL.
-2. Select a rendering style.
-3. Enjoy.
+2. Select your preferred style (Half-Block, Quad-Block, Braille, Block Shades, Binary 0101, etc.).
+3. Choose lighting/contrast, color theme, and display size.
+4. Enjoy.
 
 > [!NOTE]
 > Windows may display an **"Unknown Publisher"** warning because the batch file was downloaded from the Internet.
@@ -135,21 +154,41 @@ url
 
 Options
 
---cols COLS
-    Output width in terminal columns
-    (default: auto)
+--style {halfblock,ascii,shades,binary}
+    Rendering style (default: halfblock)
 
---fps FPS
-    Target frame rate
-    (default: 15)
-
---style {halfblock,ascii}
-    Rendering mode
-    (default: halfblock)
+--preset {binary,binary_0101,matrix,shades,blocks,highcontrast,contrast_lite,glow,braille,dots,ascii,detailed,math,slashes}
+    Preset character ramp for ASCII and text art modes
 
 --ramp RAMP
-    ASCII density ramp
-    (default: " .:-=+*#%@")
+    Custom ASCII density ramp (overrides --preset)
+
+--contrast CONTRAST
+    Contrast multiplier (e.g. 1.3, 1.5, 2.0; default: 1.0)
+
+--brightness BRIGHTNESS
+    Brightness offset (-1.0 to 1.0; default: 0.0)
+
+--gamma GAMMA
+    Gamma lighting curve (default: 1.0)
+
+--auto-contrast
+    Automatically stretch dynamic range to maximize contrast and light
+
+--light-boost LIGHT_BOOST
+    Boost color saturation and light intensity (default: 0.0)
+
+--color-mode {rgb,matrix,cyberpunk,amber,fire,gray}
+    Color theme / lighting palette (default: rgb)
+
+--cols COLS
+    Output width in terminal columns (default: auto-detected from terminal size)
+
+--fps FPS
+    Target frame rate (default: 15)
+
+--invert
+    Invert character luminance mapping
 ```
 
 ---

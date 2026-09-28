@@ -124,6 +124,11 @@ if "!YT_URL!"=="" (
 set "YT_URL="
 set "PLAY_STYLE="
 set "STYLE_CHOICE="
+set "CUSTOM_RAMP="
+set "PLAY_LIGHT="
+set "LIGHT_CHOICE="
+set "PLAY_COLOR="
+set "COLOR_CHOICE="
 set "PLAY_FPS="
 set "FPS_CHOICE="
 
@@ -139,20 +144,84 @@ if "!YT_URL!"=="" (
 )
 
 echo.
-echo Select rendering style:
-echo   1. Block characters (hd color)
-echo   2. ASCII density characters (text art)
+echo Select rendering style / character set:
+echo   1. Block characters (hd color) [Default]
+echo   2. Block Shades ( ░▒▓█ - Deep Shadows & Bright Light)
+echo   3. Binary 0101 (Matrix Digital Stream)
+echo   4. High-Contrast ASCII (Vivid highlights & deep shadows)
+echo   5. Classic ASCII (Standard text art)
+echo   6. Custom Characters (Type your own ramp)
 echo.
-set /p "STYLE_CHOICE=Select Option (1 or 2) [Default: 1]: "
+set /p "STYLE_CHOICE=Select Option (1-6) [Default: 1]: "
+
 if "!STYLE_CHOICE!"=="2" (
-    set "PLAY_STYLE=--style ascii"
+    set "PLAY_STYLE=--style shades"
+) else if "!STYLE_CHOICE!"=="3" (
+    set "PLAY_STYLE=--style binary"
+) else if "!STYLE_CHOICE!"=="4" (
+    set "PLAY_STYLE=--style ascii --preset highcontrast"
+) else if "!STYLE_CHOICE!"=="5" (
+    set "PLAY_STYLE=--style ascii --preset ascii"
+) else if "!STYLE_CHOICE!"=="6" (
+    echo.
+    set /p "CUSTOM_RAMP=Enter custom character ramp (from dark to bright): "
+    if "!CUSTOM_RAMP!"=="" (
+        set "PLAY_STYLE=--style ascii"
+    ) else (
+        set "PLAY_STYLE=--style ascii --ramp "!CUSTOM_RAMP!""
+    )
 ) else (
     set "PLAY_STYLE=--style halfblock"
 )
 echo.
 
+echo Select contrast & lighting tuning:
+echo   1. Standard (Natural balance) [Default]
+echo   2. High Contrast & Vivid Light (Deep blacks & glowing highlights)
+echo   3. Ultra Bright (Light boost for dark videos)
+echo   4. Dynamic Auto-Contrast (Auto-stretches lighting range)
+echo.
+set /p "LIGHT_CHOICE=Select Option (1-4) [Default: 1]: "
+if "!LIGHT_CHOICE!"=="2" (
+    set "PLAY_LIGHT=--contrast 1.5 --light-boost 0.15"
+) else if "!LIGHT_CHOICE!"=="3" (
+    set "PLAY_LIGHT=--contrast 1.2 --brightness 0.15 --light-boost 0.25"
+) else if "!LIGHT_CHOICE!"=="4" (
+    set "PLAY_LIGHT=--auto-contrast --contrast 1.3"
+) else (
+    set "PLAY_LIGHT="
+)
+echo.
+
+echo Select color theme:
+echo   1. Full Truecolor RGB [Default]
+echo   2. Matrix Neon Green (Cyberpunk phosphor glow)
+echo   3. Cyberpunk (Neon Cyan & Magenta)
+echo   4. Glitch Multicolor (Chromatic Aberration & VHS Split)
+echo   5. Rainbow Psychedelic (Full Neon Spectrum)
+echo   6. Amber CRT (Vintage monitor glow)
+echo   7. Monochrome Grayscale (High-contrast B&W)
+echo.
+set /p "COLOR_CHOICE=Select Option (1-7) [Default: 1]: "
+if "!COLOR_CHOICE!"=="2" (
+    set "PLAY_COLOR=--color-mode matrix"
+) else if "!COLOR_CHOICE!"=="3" (
+    set "PLAY_COLOR=--color-mode cyberpunk"
+) else if "!COLOR_CHOICE!"=="4" (
+    set "PLAY_COLOR=--color-mode glitch"
+) else if "!COLOR_CHOICE!"=="5" (
+    set "PLAY_COLOR=--color-mode rainbow"
+) else if "!COLOR_CHOICE!"=="6" (
+    set "PLAY_COLOR=--color-mode amber"
+) else if "!COLOR_CHOICE!"=="7" (
+    set "PLAY_COLOR=--color-mode gray"
+) else (
+    set "PLAY_COLOR=--color-mode rgb"
+)
+echo.
+
 echo Select playback frame rate:
-echo   1. 15 FPS
+echo   1. 15 FPS [Default]
 echo   2. 24 FPS
 echo   3. 30 FPS
 echo.
@@ -165,8 +234,16 @@ if "!FPS_CHOICE!"=="2" (
     set "PLAY_FPS=--fps 15"
 )
 echo.
+echo.
+echo ===================================================
+echo  Tip: Switch styles & colors live with keyboard!
+echo    [S] Cycle Styles  [1-6] Jump to Style [H] HD Color
+echo    [C] Cycle Colors  [G] Glitch Mode     [M] Matrix
+echo    [+/-] Contrast    []]/[[] Brightness  [Q] Quit
+echo ===================================================
+echo.
 
-"%SCRIPT_DIR%python_local\python.exe" -m termtube.cli "!YT_URL!" !PLAY_STYLE! !PLAY_FPS!
+"%SCRIPT_DIR%python_local\python.exe" -m termtube.cli "!YT_URL!" !PLAY_STYLE! !PLAY_LIGHT! !PLAY_COLOR! !PLAY_FPS!
 
 echo.
 echo Playback finished.
